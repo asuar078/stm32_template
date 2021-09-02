@@ -29,8 +29,14 @@ target_link_libraries(freertos_cpp
 
 # include file directory
 target_include_directories(freertos_cpp
+        PRIVATE
+        # internally just call header files
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<TARGET_PROPERTY:freertos,INTERFACE_INCLUDE_DIRECTORIES>
+
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        # external call freertos_cpp/<header_file>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         )
 
 # compilation flags and other options

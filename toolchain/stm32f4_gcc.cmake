@@ -114,7 +114,7 @@ add_compile_definitions(
 set(ARCH_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb --sysroot=${TOOLCHAIN_SYSROOT} ")
 
 # set ASM flags
-set(CMAKE_ASM_FLAGS "${ARCH_FLAGS} -x assembler-with-cpp -fdata-sections -ffunction-sections "
+set(CMAKE_ASM_FLAGS "${ARCH_FLAGS} -x assembler-with-cpp -fdata-sections -ffunction-sections -ffreestanding "
         CACHE INTERNAL "ASM Compiler options")
 
 # set flags used by both C/C++

@@ -20,7 +20,7 @@ set(BUILD_SHARED OFF CACHE BOOL "do not build shared library" FORCE)
 set(BUILD_STATIC ON CACHE BOOL "build static library" FORCE)
 
 # Include toolchain
-include(Toolchain/stm32f4_gcc.cmake)
+include(toolchain/stm32f4_gcc.cmake)
 
 #---------------------------------------------------------------------------------------
 # Set debug/release build configuration Options
@@ -72,31 +72,31 @@ endif ()
 
 
 # need to globally add header files in this directory
-include_directories(Core/Inc)
+include_directories(core/inc)
 
 add_compile_definitions(
         OUTCOME_DISABLE_EXECINFO
 )
 
 # Add CMSIS, HAL and other CubeMx generated libraries
-add_subdirectory(Drivers/CMSIS)
-add_subdirectory(Drivers/STM32F4xx_HAL_Driver)
-add_subdirectory(Middlewares/Third_Party/FreeRTOS)
+add_subdirectory(drivers/CMSIS)
+add_subdirectory(drivers/STM32F4xx_HAL_Driver)
+add_subdirectory(third_party)
 
 # Add project libraries
-add_subdirectory(CoreLib/freertos_cpp)
+add_subdirectory(core_lib/freertos_cpp)
 
 # Base project sources
 set(PROJECT_SOURCES
-        Core/Src/main.cpp
-        Core/Src/freertos.c
-        Core/Src/stm32f4xx_it.c
-        Core/Src/stm32f4xx_hal_msp.c
-        Core/Src/stm32f4xx_hal_timebase_tim.c
-        Core/Src/system_stm32f4xx.c
-        Core/Src/syscalls.c
-        Core/Src/sysmem.c
-        Core/Startup/startup_stm32f446retx.s
+        core/src/main.cpp
+        core/src/freertos.c
+        core/src/stm32f4xx_it.c
+        core/src/stm32f4xx_hal_msp.c
+        core/src/stm32f4xx_hal_timebase_tim.c
+        core/src/system_stm32f4xx.c
+        core/src/syscalls.c
+        core/src/sysmem.c
+        core/startup/startup_stm32f446retx.s
         )
 
 # create exe with project name
@@ -112,6 +112,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
         STM32_HAL
         freertos
         freertos_cpp
+        etl
+        NamedType
         )
 
 # compilation flags and other options

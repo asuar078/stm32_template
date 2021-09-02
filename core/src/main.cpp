@@ -21,9 +21,25 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include <Task.hpp>
+#include <freertos_cpp/Task.hpp>
 #include <cstring>
 #include <result.hpp>
+#include <NamedType/named_type.hpp>
+
+using Width = fluent::NamedType<int, struct WidthTag>;
+using Height = fluent::NamedType<int, struct HeightTag>;
+
+class Rectangle
+    {
+      public:
+        Rectangle(Width width, Height height) : width_(width.get()), height_(height.get()) {}
+        int getWidth() const { return width_; }
+        int getHeight() const { return height_; }
+
+      private:
+        int width_;
+        int height_;
+    };
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -158,7 +174,7 @@ class PrintyTask : public freertos::Task {
 
 BlinkyTask blinky_task{"blinky"};
 PrintyTask printy_task{"printy"};
-
+//
 
 
 /* USER CODE BEGIN PV */

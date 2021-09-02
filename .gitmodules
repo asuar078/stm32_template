@@ -1,0 +1,6 @@
+[submodule "third_party/etl"]
+	path = third_party/etl
+	url = https://github.com/ETLCPP/etl.git
+[submodule "third_party/NamedType"]
+	path = third_party/NamedType
+	url = https://github.com/joboccara/NamedType.git
