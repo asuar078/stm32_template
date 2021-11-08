@@ -20,18 +20,15 @@ add_library(STM32_HAL STATIC
         )
 
 target_include_directories(STM32_HAL
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Inc>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Inc/Legacy>
+    INTERFACE
+        Inc
+        Inc/Legacy
 
-        $<INSTALL_INTERFACE:Inc>
-        $<INSTALL_INTERFACE:Inc/Legacy>
-
-        PRIVATE
+    PRIVATE
         $<TARGET_PROPERTY:STM32_CMSIS,INTERFACE_INCLUDE_DIRECTORIES>
-        )
+    )
 
 target_link_libraries(STM32_HAL
-        PUBLIC
+    INTERFACE
         STM32_CMSIS
-        )
+    )

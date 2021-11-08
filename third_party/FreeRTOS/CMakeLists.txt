@@ -18,22 +18,17 @@ add_library(freertos STATIC
 
 # Set include path
 target_include_directories(freertos
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source/portable/GCC/ARM_CM4F>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source/portable/MemMang>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source/CMSIS_RTOS_V2>
+    PUBLIC
+        Source/include
+        Source/portable/GCC/ARM_CM4F
+        Source/portable/MemMang
+        Source/CMSIS_RTOS_V2
 
-        $<INSTALL_INTERFACE:Source/include>
-        $<INSTALL_INTERFACE:Source/portable/GCC/ARM_CM4F>
-        $<INSTALL_INTERFACE:Source/portable/MemMang>
-        $<INSTALL_INTERFACE:Source/CMSIS_RTOS_V2>
-
-        PRIVATE
+    PRIVATE
         $<TARGET_PROPERTY:STM32_CMSIS,INTERFACE_INCLUDE_DIRECTORIES>
-        )
+    )
 
 target_link_libraries(freertos
-        PUBLIC
+    INTERFACE
         STM32_CMSIS
-        )
+    )
