@@ -66,7 +66,7 @@ list(APPEND WARNING_ERROR_FLAGS_EXTRA_CXX
 if (${EXTRA_WARNING_FLAGS})
     list(APPEND FINAL_COMPILE_OPTIONS ${WARNING_ERROR_FLAGS_BASIC} ${WARNING_ERROR_FLAGS_EXTRA})
     list(APPEND FINAL_COMPILE_OPTIONS_CXX ${WARNING_ERROR_FLAGS_EXTRA_CXX})
-else()
+else ()
     list(APPEND FINAL_COMPILE_OPTIONS ${WARNING_ERROR_FLAGS_BASIC})
 endif ()
 
@@ -104,10 +104,15 @@ add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})
 
 target_include_directories(${CMAKE_PROJECT_NAME}
         PUBLIC
-        Core/Inc
+        core/inc
         )
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
+target_include_directories(${CMAKE_PROJECT_NAME}
+        SYSTEM INTERFACE
+        core/outcome
+        )
+
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         STM32_CMSIS
         STM32_HAL
         freertos

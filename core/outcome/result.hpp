@@ -2,8 +2,8 @@
 // Created by asuarez on 8/5/21.
 //
 
-#ifndef XX90_MANAGER_CMAKE_SPIN_POLICY_HPP
-#define XX90_MANAGER_CMAKE_SPIN_POLICY_HPP
+#ifndef CMAKE_SPIN_POLICY_HPP
+#define CMAKE_SPIN_POLICY_HPP
 
 #include "outcome-basic.hpp"
 
@@ -32,5 +32,4 @@ struct spin_policy : outcome::policy::base {
 template<class R, class S>
 using result = outcome::basic_result<R, S, spin_policy>;
 
-
-#endif //XX90_MANAGER_CMAKE_SPIN_POLICY_HPP
+#endif

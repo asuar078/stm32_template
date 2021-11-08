@@ -23,7 +23,7 @@
 
 #include <freertos_cpp/Task.hpp>
 #include <cstring>
-#include <result.hpp>
+#include "../outcome/result.hpp"
 #include <NamedType/named_type.hpp>
 
 using Width = fluent::NamedType<int, struct WidthTag>;

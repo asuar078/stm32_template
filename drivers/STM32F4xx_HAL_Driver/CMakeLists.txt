@@ -20,7 +20,7 @@ add_library(STM32_HAL STATIC
         )
 
 target_include_directories(STM32_HAL
-    INTERFACE
+    SYSTEM INTERFACE
         Inc
         Inc/Legacy
 
