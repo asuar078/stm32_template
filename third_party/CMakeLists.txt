@@ -13,3 +13,9 @@ target_include_directories(NamedType
     SYSTEM INTERFACE
         NamedType/include
     )
+
+add_library(outcome INTERFACE)
+target_include_directories(outcome
+        SYSTEM INTERFACE
+        outcome
+        )

@@ -107,11 +107,6 @@ target_include_directories(${CMAKE_PROJECT_NAME}
         core/inc
         )
 
-target_include_directories(${CMAKE_PROJECT_NAME}
-        SYSTEM INTERFACE
-        core/outcome
-        )
-
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         STM32_CMSIS
         STM32_HAL
@@ -119,6 +114,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         freertos_cpp
         etl
         NamedType
+        outcome
         )
 
 # compilation flags and other options

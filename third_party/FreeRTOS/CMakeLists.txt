@@ -18,17 +18,17 @@ add_library(freertos STATIC
 
 # Set include path
 target_include_directories(freertos
-    PUBLIC
+        SYSTEM PUBLIC
         Source/include
         Source/portable/GCC/ARM_CM4F
         Source/portable/MemMang
         Source/CMSIS_RTOS_V2
 
-    PRIVATE
+        PRIVATE
         $<TARGET_PROPERTY:STM32_CMSIS,INTERFACE_INCLUDE_DIRECTORIES>
-    )
+        )
 
 target_link_libraries(freertos
-    INTERFACE
+        INTERFACE
         STM32_CMSIS
-    )
+        )

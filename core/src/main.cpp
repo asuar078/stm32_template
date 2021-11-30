@@ -29,17 +29,19 @@
 using Width = fluent::NamedType<int, struct WidthTag>;
 using Height = fluent::NamedType<int, struct HeightTag>;
 
-class Rectangle
-    {
-      public:
-        Rectangle(Width width, Height height) : width_(width.get()), height_(height.get()) {}
-        int getWidth() const { return width_; }
-        int getHeight() const { return height_; }
+class Rectangle {
+  public:
+    Rectangle(Width width, Height height)
+        :width_(width.get()), height_(height.get()) { }
 
-      private:
-        int width_;
-        int height_;
-    };
+    int getWidth() const { return width_; }
+
+    int getHeight() const { return height_; }
+
+  private:
+    int width_;
+    int height_;
+};
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -73,9 +75,9 @@ UART_HandleTypeDef huart2;
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "defaultTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t) osPriorityNormal,
 };
 
 enum class MyError {
@@ -95,7 +97,6 @@ result<int, MyError> within_range(int i)
   return outcome::success(i);
 }
 
-
 result<int, MyError> test_val(int i)
 {
   int l = i;
@@ -108,12 +109,12 @@ result<int, MyError> test_val(int i)
   return outcome::success(l);
 }
 
-
 class BlinkyTask : public freertos::Task {
   public:
     using Task::Task;
 
-    [[noreturn]] void run() override {
+    [[noreturn]] void run() override
+    {
       loop {
         HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
         freertos::Task::delay_ms(1000);
@@ -142,25 +143,26 @@ class PrintyTask : public freertos::Task {
     const char* fail_low_message = "value too low\n\r";
     const size_t fail_low_msg_len = strlen(fail_low_message);
 
-    [[noreturn]] void run() override {
+    [[noreturn]] void run() override
+    {
 
-      HAL_UART_Transmit(&huart2, (uint8_t *)message, msg_len, 0xFFFF);
+      HAL_UART_Transmit(&huart2, (uint8_t*) message, msg_len, 0xFFFF);
 
       loop {
 
         for (int i = 0; i < 15; ++i) {
           auto ret = within_range(i);
           if (ret.has_value()) {
-            HAL_UART_Transmit(&huart2, (uint8_t *)pass_message, pass_msg_len, 0xFFFF);
+            HAL_UART_Transmit(&huart2, (uint8_t*) pass_message, pass_msg_len, 0xFFFF);
             continue;
           }
 
-          switch (ret.error() ) {
+          switch (ret.error()) {
             case MyError::too_low:
-              HAL_UART_Transmit(&huart2, (uint8_t *)fail_low_message, fail_low_msg_len, 0xFFFF);
+              HAL_UART_Transmit(&huart2, (uint8_t*) fail_low_message, fail_low_msg_len, 0xFFFF);
               break;
             case MyError::too_high:
-              HAL_UART_Transmit(&huart2, (uint8_t *)fail_high_message, fail_high_msg_len, 0xFFFF);
+              HAL_UART_Transmit(&huart2, (uint8_t*) fail_high_message, fail_high_msg_len, 0xFFFF);
               break;
             case MyError::not_a_number:
               break;
@@ -183,10 +185,12 @@ PrintyTask printy_task{"printy"};
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+
 static void MX_GPIO_Init(void);
+
 static void MX_USART2_UART_Init(void);
 
-void StartDefaultTask(void *argument);
+void StartDefaultTask(void* argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -196,6 +200,36 @@ void StartDefaultTask(void *argument);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
+
+namespace __gnu_cxx {
+  void __verbose_terminate_handler()
+  {
+    while (true) {
+      // your error handling goes here.
+    }
+  }
+}
+
+extern "C" {
+
+void __cxa_pure_virtual()
+{
+  while (true) {
+    // your error handling goes here.
+  }
+}
+// The canary value
+extern const uintptr_t __stack_chk_guard = 0xdeadbeef;
+
+// Called if the check fails
+[[noreturn]] void __stack_chk_fail()
+{
+  while (true) {
+    // your error handling goes here.
+  }
+}
+
+} // end extern "C"
 
 /**
   * @brief  The application entry point.
@@ -270,8 +304,7 @@ int main()
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (true)
-  {
+  while (true) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -305,27 +338,24 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 6;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     Error_Handler();
   }
   /** Activate the Over-Drive mode
   */
-  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
-  {
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+      | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
-  {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
     Error_Handler();
   }
 }
@@ -352,8 +382,7 @@ static void MX_USART2_UART_Init()
   huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
+  if (HAL_UART_Init(&huart2) != HAL_OK) {
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
@@ -400,7 +429,7 @@ static void MX_GPIO_Init()
 
   GPIO_Config.Pin = LED_PIN;
 
-  LED_PORT_CLK_ENABLE();
+      LED_PORT_CLK_ENABLE();
   HAL_GPIO_Init(LED_PORT, &GPIO_Config);
 
 }
@@ -416,27 +445,26 @@ static void MX_GPIO_Init()
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+void StartDefaultTask(void* argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
-  for(;;)
-  {
+  for (;;) {
     HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
     osDelay(1000);
   }
   /* USER CODE END 5 */
 }
 
- /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM6 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
   /* USER CODE BEGIN Callback 0 */
 
@@ -458,13 +486,13 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
+  while (1) {
   }
   /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
+
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -472,13 +500,14 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uint8_t* file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
+
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
