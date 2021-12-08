@@ -138,6 +138,7 @@ set(CMAKE_EXE_LINKER_FLAGS
     --specs=nosys.specs --specs=nano.specs \
     -T ${CMAKE_CURRENT_LIST_DIR}/STM32F446RETX_FLASH.ld \
     -Wl,-Map=stm32f4.map \
+    -Wl,--print-memory-usage \
     -Wl,--gc-sections -static \
     -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group \
     "

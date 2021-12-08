@@ -17,7 +17,7 @@ namespace freertos {
 
   class Task {
     public:
-      explicit Task(const char* taskName, uint16_t stackSize = 1024, uint8_t priority = 5);
+      explicit Task(const char* taskName, uint16_t stackSize = 128, uint8_t priority = 5);
 
       virtual ~Task();
 
