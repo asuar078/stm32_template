@@ -11,6 +11,10 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+#if(configSUPPORT_STATIC_ALLOCATION == 1)
+#include <array>
+#endif
+
 namespace freertos {
 
 /**
@@ -23,130 +27,152 @@ namespace freertos {
  */
   class Queue {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-        *  Our constructor.
-        *
-        *  @throws QueueCreateException
-        *  @param maxItems Maximum number of items this queue can hold.
-        *  @param itemSize Size of an item in a queue.
-        *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
-        */
-    Queue(UBaseType_t maxItems, UBaseType_t itemSize);
+      /**
+          *  Our constructor.
+          *
+          *  @throws QueueCreateException
+          *  @param maxItems Maximum number of items this queue can hold.
+          *  @param itemSize Size of an item in a queue.
+          *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
+          */
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
 
-    /**
-        *  Our destructor.
-        */
-    virtual ~Queue();
+      Queue(UBaseType_t maxItems, UBaseType_t itemSize, uint8_t* storageBuffer);
 
-    /**
-        *  Add an item to the back of the queue.
-        *
-        *  @param item The item you are adding.
-        *  @param Timeout How long to wait to add the item to the queue if
-        *         the queue is currently full.
-        *  @return true if the item was added, false if it was not.
-        */
-    virtual bool enqueue(void *item, TickType_t Timeout = portMAX_DELAY);
+      #else
 
-    /**
-        *  Remove an item from the front of the queue.
-        *
-        *  @param item Where the item you are removing will be returned to.
-        *  @param Timeout How long to wait to remove an item if the queue
-        *         is currently empty.
-        *  @return true if an item was removed, false if no item was removed.
-        */
-    bool dequeue(void *item, TickType_t Timeout = portMAX_DELAY);
+      Queue(UBaseType_t maxItems, UBaseType_t itemSize);
 
-    /**
-        *  Make a copy of an item from the front of the queue. This will
-        *  not remove it from the head of the queue.
-        *
-        *  @param item Where the item you are removing will be returned to.
-        *  @param Timeout How long to wait to remove an item if the queue
-        *         is currently empty.
-        *  @return true if an item was copied, false if no item was copied.
-        */
-    bool peek(void *item, TickType_t Timeout = portMAX_DELAY);
+      #endif
 
-    /**
-        *  Add an item to the back of the queue in ISR context.
-        *
-        *  @param item The item you are adding.
-        *  @param pxHigherPriorityTaskWoken Did this operation result in a
-        *         rescheduling event.
-        *  @return true if the item was added, false if it was not.
-        */
-    virtual bool enqueueFromISR(void *item, BaseType_t *pxHigherPriorityTaskWoken);
+      /**
+          *  Our destructor.
+          */
+      virtual ~Queue();
 
-    /**
-        *  Remove an item from the front of the queue in ISR context.
-        *
-        *  @param item Where the item you are removing will be returned to.
-        *  @param pxHigherPriorityTaskWoken Did this operation result in a
-        *         rescheduling event.
-        *  @return true if an item was removed, false if no item was removed.
-        */
-    bool dequeueFromISR(void *item, BaseType_t *pxHigherPriorityTaskWoken);
+      /**
+          *  Add an item to the back of the queue.
+          *
+          *  @param item The item you are  pucStreamBufferStorageArea adding.
+          *  @param Timeout How long to wait to add the item to the queue if
+          *         the queue is currently full.
+          *  @return true if the item was added, false if it was not.
+          */
+      virtual bool enqueue(void* item, TickType_t Timeout = portMAX_DELAY);
 
-    /**
-        *  Make a copy of an item from the front of the queue. This will
-        *  not remove it from the head of the queue.
-        *
-        *  @param item Where the item you are removing will be returned to.
-        *  @return true if an item was copied, false if no item was copied.
-        */
-    bool peekFromISR(void *item);
+      /**
+          *  Remove an item from the front of the queue.
+          *
+          *  @param item Where the item you are removing will be returned to.
+          *  @param Timeout How long to wait to remove an item if the queue
+          *         is currently empty.
+          *  @return true if an item was removed, false if no item was removed.
+          */
+      bool dequeue(void* item, TickType_t Timeout = portMAX_DELAY);
 
-    /**
-        *  Is the queue empty?
-        *  @return true if the queue was empty when this was called, false if
-        *  the queue was not empty.
-        */
-    bool isEmpty();
+      /**
+          *  Make a copy of an item from the front of the queue. This will
+          *  not remove it from the head of the queue.
+          *
+          *  @param item Where the item you are removing will be returned to.
+          *  @param Timeout How long to wait to remove an item if the queue
+          *         is currently empty.
+          *  @return true if an item was copied, false if no item was copied.
+          */
+      bool peek(void* item, TickType_t Timeout = portMAX_DELAY);
 
-    /**
-        *  Is the queue full?
-        *  @return true if the queue was full when this was called, false if
-        *  the queue was not full.
-        */
-    bool isFull();
+      /**
+          *  Add an item to the back of the queue in ISR context.
+          *
+          *  @param item The item you are adding.
+          *  @param pxHigherPriorityTaskWoken Did this operation result in a
+          *         rescheduling event.
+          *  @return true if the item was added, false if it was not.
+          */
+      virtual bool enqueueFromISR(void* item, BaseType_t* pxHigherPriorityTaskWoken);
 
-    /**
-        *  Remove all objects from the queue.
-        */
-    void flush();
+      /**
+          *  Remove an item from the front of the queue in ISR context.
+          *
+          *  @param item Where the item you are removing will be returned to.
+          *  @param pxHigherPriorityTaskWoken Did this operation result in a
+          *         rescheduling event.
+          *  @return true if an item was removed, false if no item was removed.
+          */
+      bool dequeueFromISR(void* item, BaseType_t* pxHigherPriorityTaskWoken);
 
-    /**
-        *  How many items are currently in the queue.
-        *  @return the number of items in the queue.
-        */
-    UBaseType_t numItems();
+      /**
+          *  Make a copy of an item from the front of the queue. This will
+          *  not remove it from the head of the queue.
+          *
+          *  @param item Where the item you are removing will be returned to.
+          *  @return true if an item was copied, false if no item was copied.
+          */
+      bool peekFromISR(void* item);
 
-    /**
-        *  How many empty spaves are currently left in the queue.
-        *  @return the number of remaining spaces.
-        */
-    UBaseType_t numSpacesLeft();
+      /**
+          *  Is the queue empty?
+          *  @return true if the queue was empty when this was called, false if
+          *  the queue was not empty.
+          */
+      bool isEmpty();
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Protected API
-    //  Not intended for use by application code.
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /**
+          *  Is the queue full?
+          *  @return true if the queue was full when this was called, false if
+          *  the queue was not full.
+          */
+      bool isFull();
+
+      /**
+          *  Remove all objects from the queue.
+          */
+      void flush();
+
+      /**
+          *  How many items are currently in the queue.
+          *  @return the number of items in the queue.
+          */
+      UBaseType_t numItems();
+
+      /**
+          *  How many empty spaves are currently left in the queue.
+          *  @return the number of remaining spaces.
+          */
+      UBaseType_t numSpacesLeft();
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Protected API
+      //  Not intended for use by application code.
+      //
+      /////////////////////////////////////////////////////////////////////////
     protected:
-    /**
-        *  FreeRTOS queue handle.
-        */
-    QueueHandle_t handle;
+      /**
+          *  FreeRTOS queue handle.
+          */
+      QueueHandle_t handle;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticQueue_t queueBuffer{};
+      #endif
   };
+
+
+  #if(configSUPPORT_STATIC_ALLOCATION == 1)
+  template<typename T, size_t N>
+  Queue makeQueue(std::array<T, N>& array)
+  {
+    return {N, sizeof(T), reinterpret_cast<uint8_t*>(array.data())};
+  }
+  #endif
+
 
 /**
  *  Enhanced queue class that implements a double ended queue (a "deque"),
@@ -159,45 +185,53 @@ namespace freertos {
  */
   class Deque : public Queue {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-        *  Our constructor.
-        *
-        *  @throws QueueCreateException
-        *  @param maxItems Maximum number of items thsi queue can hold.
-        *  @param itemSize Size of an item in a queue.
-        *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
-        */
-    Deque(UBaseType_t maxItems, UBaseType_t itemSize);
+      /**
+          *  Our constructor.
+          *
+          *  @throws QueueCreateException
+          *  @param maxItems Maximum number of items thsi queue can hold.
+          *  @param itemSize Size of an item in a queue.
+          *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
+          */
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
 
-    /**
-        *  Add an item to the front of the queue. This will result in
-        *  the item being removed first, ahead of all of the items
-        *  added by the base calss dequeue() function.
-        *
-        *  @param item The item you are adding.
-        *  @param Timeout How long to wait to add the item to the queue if
-        *         the queue is currently full.
-        *  @return true if the item was added, false if it was not.
-        */
-    bool enqueueToFront(void *item, TickType_t Timeout = portMAX_DELAY);
+      Deque(UBaseType_t maxItems, UBaseType_t itemSize, uint8_t* storageBuffer);
 
-    /**
-        *  Add an item to the front of the queue. This will result in
-        *  the item being removed first, ahead of all of the items
-        *  added by the base calss dequeue() function.
-        *
-        *  @param item The item you are adding.
-        *  @param pxHigherPriorityTaskWoken Did this operation result in a
-        *         rescheduling event.
-        *  @return true if the item was added, false if it was not.
-        */
-    bool enqueueToFrontFromISR(void *item, BaseType_t *pxHigherPriorityTaskWoken);
+      #else
+
+      Deque(UBaseType_t maxItems, UBaseType_t itemSize);
+
+      #endif
+
+      /**
+          *  Add an item to the front of the queue. This will result in
+          *  the item being removed first, ahead of all of the items
+          *  added by the base calss dequeue() function.
+          *
+          *  @param item The item you are adding.
+          *  @param Timeout How long to wait to add the item to the queue if
+          *         the queue is currently full.
+          *  @return true if the item was added, false if it was not.
+          */
+      bool enqueueToFront(void* item, TickType_t Timeout = portMAX_DELAY);
+
+      /**
+          *  Add an item to the front of the queue. This will result in
+          *  the item being removed first, ahead of all of the items
+          *  added by the base calss dequeue() function.
+          *
+          *  @param item The item you are adding.
+          *  @param pxHigherPriorityTaskWoken Did this operation result in a
+          *         rescheduling event.
+          *  @return true if the item was added, false if it was not.
+          */
+      bool enqueueToFrontFromISR(void* item, BaseType_t* pxHigherPriorityTaskWoken);
   };
 
 /**
@@ -211,38 +245,44 @@ namespace freertos {
  */
   class BinaryQueue : public Queue {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-        *  Our constructor.
-        *
-        *  @throws QueueCreateException
-        *  @param itemSize Size of an item in a queue.
-        *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
-        */
-    explicit BinaryQueue(UBaseType_t itemSize);
+      /**
+          *  Our constructor.
+          *
+          *  @throws QueueCreateException
+          *  @param itemSize Size of an item in a queue.
+          *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
+          */
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
 
-    /**
-         *  Add an item to the queue.
-         *
-         *  @param item The item you are adding.
-         *  @return true always, because of overwrite.
-         */
-    virtual bool enqueue(void *item, TickType_t Timeout = portMAX_DELAY) override;
+      BinaryQueue(UBaseType_t itemSize, uint8_t* storageBuffer);
 
-    /**
-         *  Add an item to the queue in ISR context.
-         *
-         *  @param item The item you are adding.
-         *  @param pxHigherPriorityTaskWoken Did this operation result in a
-         *         rescheduling event.
-         *  @return true always, because of overwrite.
-         */
-    virtual bool enqueueFromISR(void *item, BaseType_t *pxHigherPriorityTaskWoken) override;
+      #else
+      explicit BinaryQueue(UBaseType_t itemSize);
+      #endif
+
+      /**
+           *  Add an item to the queue.
+           *
+           *  @param item The item you are adding.
+           *  @return true always, because of overwrite.
+           */
+      virtual bool enqueue(void* item, TickType_t Timeout = portMAX_DELAY) override;
+
+      /**
+           *  Add an item to the queue in ISR context.
+           *
+           *  @param item The item you are adding.
+           *  @param pxHigherPriorityTaskWoken Did this operation result in a
+           *         rescheduling event.
+           *  @return true always, because of overwrite.
+           */
+      virtual bool enqueueFromISR(void* item, BaseType_t* pxHigherPriorityTaskWoken) override;
   };
 
 } // namespace freertos

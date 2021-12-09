@@ -19,68 +19,73 @@ namespace freertos {
  */
   class ReadWriteLock {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-         *  Constructor
-         *
-         *  @throws ReadWriteLockCreateException on failure.
-         */
-    ReadWriteLock();
+      /**
+           *  Constructor
+           *
+           *  @throws ReadWriteLockCreateException on failure.
+           */
+      ReadWriteLock();
 
-    /**
-         *  Destructor
-         */
-    virtual ~ReadWriteLock();
+      /**
+           *  Destructor
+           */
+      virtual ~ReadWriteLock();
 
-    /**
-         *  Take the lock as a Reader.
-         *  This allows multiple reader access.
-         */
-    virtual void readerLock() = 0;
+      /**
+           *  Take the lock as a Reader.
+           *  This allows multiple reader access.
+           */
+      virtual void readerLock() = 0;
 
-    /**
-         *  Unlock the Reader.
-         */
-    virtual void readerUnlock() = 0;
+      /**
+           *  Unlock the Reader.
+           */
+      virtual void readerUnlock() = 0;
 
-    /**
-         *  Take the lock as a Writer.
-         *  This allows only one thread access.
-         */
-    virtual void writerLock() = 0;
+      /**
+           *  Take the lock as a Writer.
+           *  This allows only one thread access.
+           */
+      virtual void writerLock() = 0;
 
-    /**
-         *  Unlock the Writer.
-         */
-    virtual void writerUnlock() = 0;
+      /**
+           *  Unlock the Writer.
+           */
+      virtual void writerUnlock() = 0;
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Protected API
-    //  Not intended for use by application code.
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Protected API
+      //  Not intended for use by application code.
+      //
+      /////////////////////////////////////////////////////////////////////////
     protected:
-    /**
-         *  How many active readers are there.
-         */
-    int readCount;
+      /**
+           *  How many active readers are there.
+           */
+      int readCount;
 
-    /**
-         *  Protect ReadCount.
-         */
-    SemaphoreHandle_t readLock;
+      /**
+           *  Protect ReadCount.
+           */
+      SemaphoreHandle_t readLock;
 
-    /**
-         *  Protect this resource from multiple writer access, or
-         *  from Reader access when a writer is changing something.
-         */
-    SemaphoreHandle_t resourceLock;
+      /**
+           *  Protect this resource from multiple writer access, or
+           *  from Reader access when a writer is changing something.
+           */
+      SemaphoreHandle_t resourceLock;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticSemaphore_t readBuffer{};
+      StaticSemaphore_t resourceBuffer{};
+      #endif
   };
 
 /**
@@ -90,33 +95,33 @@ namespace freertos {
  */
   class ReadWriteLockPreferReader : public ReadWriteLock {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-         *  Take the lock as a Reader.
-         *  This allows multiple reader access.
-         */
-    virtual void readerLock();
+      /**
+           *  Take the lock as a Reader.
+           *  This allows multiple reader access.
+           */
+      void readerLock() final;
 
-    /**
-         *  Unlock the Reader.
-         */
-    virtual void readerUnlock();
+      /**
+           *  Unlock the Reader.
+           */
+      void readerUnlock() final;
 
-    /**
-         *  Take the lock as a Writer.
-         *  This allows only one thread access.
-         */
-    virtual void writerLock();
+      /**
+           *  Take the lock as a Writer.
+           *  This allows only one thread access.
+           */
+      void writerLock() final;
 
-    /**
-         *  Unlock the Writer.
-         */
-    virtual void writerUnlock();
+      /**
+           *  Unlock the Writer.
+           */
+      void writerUnlock() final;
   };
 
 /**
@@ -126,66 +131,71 @@ namespace freertos {
  */
   class ReadWriteLockPreferWriter : public ReadWriteLock {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-         *  Our derived constructor.
-         */
-    ReadWriteLockPreferWriter();
+      /**
+           *  Our derived constructor.
+           */
+      ReadWriteLockPreferWriter();
 
-    /**
-         *  Our derived destructor.
-         */
-    virtual ~ReadWriteLockPreferWriter();
+      /**
+           *  Our derived destructor.
+           */
+      ~ReadWriteLockPreferWriter() override;
 
-    /**
-         *  Take the lock as a Reader.
-         *  This allows multiple reader access.
-         */
-    virtual void readerLock();
+      /**
+           *  Take the lock as a Reader.
+           *  This allows multiple reader access.
+           */
+      void readerLock() final;
 
-    /**
-         *  Unlock the Reader.
-         */
-    virtual void readerUnlock();
+      /**
+           *  Unlock the Reader.
+           */
+      void readerUnlock() final;
 
-    /**
-         *  Take the lock as a Writer.
-         *  This allows only one thread access.
-         */
-    virtual void writerLock();
+      /**
+           *  Take the lock as a Writer.
+           *  This allows only one thread access.
+           */
+      void writerLock() final;
 
-    /**
-         *  Unlock the Writer.
-         */
-    virtual void writerUnlock();
+      /**
+           *  Unlock the Writer.
+           */
+      void writerUnlock() final;
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Private API
-    //  The internals of this wrapper class.
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Private API
+      //  The internals of this wrapper class.
+      //
+      /////////////////////////////////////////////////////////////////////////
     private:
-    /**
-         *  Number of Writers waiting for the Resource Lock, including any
-         *  current Writer already holdign it.
-         */
-    int writeCount;
+      /**
+           *  Number of Writers waiting for the Resource Lock, including any
+           *  current Writer already holdign it.
+           */
+      int writeCount;
 
-    /**
-         *  Protect writeCount.
-         */
-    SemaphoreHandle_t writeLock;
+      /**
+           *  Protect writeCount.
+           */
+      SemaphoreHandle_t writeLock;
 
-    /**
-         *  Lock to stop reader threads from starving a Writer.
-         */
-    SemaphoreHandle_t blockReadersLock;
+      /**
+           *  Lock to stop reader threads from starving a Writer.
+           */
+      SemaphoreHandle_t blockReadersLock;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticSemaphore_t writeBuffer{};
+      StaticSemaphore_t readerBuffer{};
+      #endif
   };
 } // namespace freertos
 

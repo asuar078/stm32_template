@@ -41,7 +41,7 @@ namespace freertos {
       //  Public API
       //
       /////////////////////////////////////////////////////////////////////////
-  public:
+    public:
       /**
        *  Create a standard, non-recursize Mutex.
        */
@@ -65,8 +65,11 @@ namespace freertos {
        */
       bool unlock();
 
-  private:
+    protected:
       SemaphoreHandle_t handle;
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticSemaphore_t mutexBuffer{};
+      #endif
   };
 
 #else
@@ -126,7 +129,7 @@ namespace freertos {
       //  Public API
       //
       /////////////////////////////////////////////////////////////////////////
-  public:
+    public:
       /**
        *  Create a recursize Mutex.
        */
@@ -148,8 +151,11 @@ namespace freertos {
        */
       bool unlock();
 
-  private:
+    private:
       SemaphoreHandle_t handle;
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticSemaphore_t mutexBuffer{};
+      #endif
   };
 
 #endif
@@ -167,55 +173,58 @@ namespace freertos {
   template<class mutex_class>
   class LockGuard {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
 
-    /**
-     * Create a LockGuard with a specific Mutex.
-     * @param m: The Mutex will be locked.
-     * @param lockAcquired: bool
-     * @param Timeout: How long to wait to get the Lock until giving up.
-     */
-    LockGuard(mutex_class &m, TickType_t Timeout = portMAX_DELAY)
-        : m_mutex(m) {
-      lock_acquired = m.lock(Timeout);
-    }
-
-    /**
-     *  Destroy a LockGuard.
-     *
-     *  @post The Mutex will be unlocked.
-     */
-    ~LockGuard() {
-      if (lock_acquired) {
-        m_mutex.unlock();
+      /**
+       * Create a LockGuard with a specific Mutex.
+       * @param m: The Mutex will be locked.
+       * @param lockAcquired: bool
+       * @param Timeout: How long to wait to get the Lock until giving up.
+       */
+      explicit LockGuard(mutex_class& m, TickType_t Timeout = portMAX_DELAY)
+          :m_mutex(m)
+      {
+        lock_acquired = m.lock(Timeout);
       }
-    }
 
-    /**
-     * @return states if lock was acquired
-     */
-    bool lockAcquired(void) {
-      return lock_acquired;
-    }
+      /**
+       *  Destroy a LockGuard.
+       *
+       *  @post The Mutex will be unlocked.
+       */
+      ~LockGuard()
+      {
+        if (lock_acquired) {
+          m_mutex.unlock();
+        }
+      }
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Private API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /**
+       * @return states if lock was acquired
+       */
+      bool lockAcquired(void)
+      {
+        return lock_acquired;
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Private API
+      //
+      /////////////////////////////////////////////////////////////////////////
     private:
 
-    /**
-     *  Reference to the Mutex we locked, so it can be unlocked
-     *  in the destructor.
-     */
-    mutex_class &m_mutex;
-    bool lock_acquired = false;
+      /**
+       *  Reference to the Mutex we locked, so it can be unlocked
+       *  in the destructor.
+       */
+      mutex_class& m_mutex;
+      bool lock_acquired = false;
   };
 
 } /* namespace freertos */

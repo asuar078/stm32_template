@@ -27,73 +27,78 @@ namespace freertos {
    */
   class Semaphore {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-     *  Aquire (take) a semaphore.
-     *
-     *  Example of blocking indefinitely:
-     *      aSemaphore.Take();
-     *
-     *  Example of blocking for 100 ticks:
-     *      aSemaphore.Take(100);
-     *
-     *  @param Timeout How long to wait to get the Lock until giving up.
-     *  @return true if the Semaphore was acquired, false if it timed out.
-     */
-    bool take(TickType_t Timeout = portMAX_DELAY);
+      /**
+       *  Aquire (take) a semaphore.
+       *
+       *  Example of blocking indefinitely:
+       *      aSemaphore.Take();
+       *
+       *  Example of blocking for 100 ticks:
+       *      aSemaphore.Take(100);
+       *
+       *  @param Timeout How long to wait to get the Lock until giving up.
+       *  @return true if the Semaphore was acquired, false if it timed out.
+       */
+      bool take(TickType_t Timeout = portMAX_DELAY);
 
-    /**
-     *  Release (give) a semaphore.
-     *
-     *  @return true if the Semaphore was released, false if it failed.
-     */
-    bool give();
+      /**
+       *  Release (give) a semaphore.
+       *
+       *  @return true if the Semaphore was released, false if it failed.
+       */
+      bool give();
 
-    /**
-     *  Aquire (take) a semaphore from ISR context.
-     *
-     *  @param pxHigherPriorityTaskWoken Did this operation result in a
-     *         rescheduling event.
-     *  @return true if the Semaphore was acquired, false if it timed out.
-     */
-    bool takeFromISR(BaseType_t *pxHigherPriorityTaskWoken);
+      /**
+       *  Aquire (take) a semaphore from ISR context.
+       *
+       *  @param pxHigherPriorityTaskWoken Did this operation result in a
+       *         rescheduling event.
+       *  @return true if the Semaphore was acquired, false if it timed out.
+       */
+      bool takeFromISR(BaseType_t* pxHigherPriorityTaskWoken);
 
-    /**
-     *  Release (give) a semaphore from ISR context.
-     *
-     *  @param pxHigherPriorityTaskWoken Did this operation result in a
-     *         rescheduling event.
-     *  @return true if the Semaphore was released, false if it failed.
-     */
-    bool giveFromISR(BaseType_t *pxHigherPriorityTaskWoken);
+      /**
+       *  Release (give) a semaphore from ISR context.
+       *
+       *  @param pxHigherPriorityTaskWoken Did this operation result in a
+       *         rescheduling event.
+       *  @return true if the Semaphore was released, false if it failed.
+       */
+      bool giveFromISR(BaseType_t* pxHigherPriorityTaskWoken);
 
-    /**
-     *  Our destructor
-     */
-    virtual ~Semaphore();
+      /**
+       *  Our destructor
+       */
+      virtual ~Semaphore();
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Protected API
-    //  Not intended for use by application code.
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Protected API
+      //  Not intended for use by application code.
+      //
+      /////////////////////////////////////////////////////////////////////////
     protected:
-    /**
-     *  FreeRTOS semaphore handle.
-     */
-    SemaphoreHandle_t handle;
+      /**
+       *  FreeRTOS semaphore handle.
+       */
+      SemaphoreHandle_t handle;
 
-    /**
-     *  We do not want a Semaphore ctor. This class should never be
-     *  directly created, this is a base class only.
-     */
-    Semaphore();
+      /**
+       *  We do not want a Semaphore ctor. This class should never be
+       *  directly created, this is a base class only.
+       */
+      Semaphore();
+
+    protected:
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticSemaphore_t semaBuffer{};
+      #endif
   };
 
   /**
@@ -101,20 +106,20 @@ namespace freertos {
    */
   class BinarySemaphore : public Semaphore {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-     *  Constructor to create a binary semaphore.
-     *
-     *  @param set Is this semaphore "full" or not?
-     *  @throws SemaphoreCreateException on failure.
-     *  @return Instance of a BinarySemaphore.
-     */
-    explicit BinarySemaphore(bool set = false);
+      /**
+       *  Constructor to create a binary semaphore.
+       *
+       *  @param set Is this semaphore "full" or not?
+       *  @throws SemaphoreCreateException on failure.
+       *  @return Instance of a BinarySemaphore.
+       */
+      explicit BinarySemaphore(bool set = false);
   };
 
   /**
@@ -122,22 +127,22 @@ namespace freertos {
    */
   class CountingSemaphore : public Semaphore {
 
-    /////////////////////////////////////////////////////////////////////////
-    //
-    //  Public API
-    //
-    /////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      //
+      //  Public API
+      //
+      /////////////////////////////////////////////////////////////////////////
     public:
-    /**
-     *  Constructor to create a counting semaphore.
-     *  This ctor throws a SemaphoreCreateException on failure.
-     *
-     *  @param maxCount Must be greater than 0.
-     *  @param initialCount Must not be greater than maxCount.
-     *  @throws SemaphoreCreateException on failure.
-     *  @return Instance of a CountingSemaphore.
-     */
-    CountingSemaphore(UBaseType_t maxCount, UBaseType_t initialCount);
+      /**
+       *  Constructor to create a counting semaphore.
+       *  This ctor throws a SemaphoreCreateException on failure.
+       *
+       *  @param maxCount Must be greater than 0.
+       *  @param initialCount Must not be greater than maxCount.
+       *  @throws SemaphoreCreateException on failure.
+       *  @return Instance of a CountingSemaphore.
+       */
+      CountingSemaphore(UBaseType_t maxCount, UBaseType_t initialCount);
   };
 
 } /* namespace freertos */

@@ -15,40 +15,54 @@ namespace freertos {
 
   class StreamBuffer {
     public:
-    StreamBuffer(size_t bufferSizeBytes, size_t triggerLevelBytes);
 
-    virtual ~StreamBuffer();
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
 
-    size_t send(const void *data,
-                size_t dataLengthBytes,
-                TickType_t ticksToWait = portMAX_DELAY);
+      StreamBuffer(size_t bufferSizeBytes, size_t triggerLevelBytes, uint8_t* storageBuffer);
 
-    size_t sendFromISR(const void *data,
-                       size_t dataLengthBytes,
-                       BaseType_t *const pxHigherPriorityTaskWoken);
+      #else
 
-    size_t receive(void *data,
-                   size_t dataLengthBytes,
-                   TickType_t ticksToWait = portMAX_DELAY);
+      StreamBuffer(size_t bufferSizeBytes, size_t triggerLevelBytes);
 
-    size_t receiveFromISR(void *data,
-                          size_t dataLengthBytes,
-                          BaseType_t *const pxHigherPriorityTaskWoken);
+      #endif
 
-    bool isFull() const;
 
-    bool isEmpty() const;
+      virtual ~StreamBuffer();
 
-    bool reset();
+      size_t send(const void* data,
+          size_t dataLengthBytes,
+          TickType_t ticksToWait = portMAX_DELAY);
 
-    size_t spaceAvailable() const;
+      size_t sendFromISR(const void* data,
+          size_t dataLengthBytes,
+          BaseType_t* const pxHigherPriorityTaskWoken);
 
-    size_t bytesAvailable() const;
+      size_t receive(void* data,
+          size_t dataLengthBytes,
+          TickType_t ticksToWait = portMAX_DELAY);
 
-    bool setTriggerLevel(size_t triggerLevelBytes);
+      size_t receiveFromISR(void* data,
+          size_t dataLengthBytes,
+          BaseType_t* const pxHigherPriorityTaskWoken);
+
+      bool isFull() const;
+
+      bool isEmpty() const;
+
+      bool reset();
+
+      [[nodiscard]] size_t spaceAvailable() const;
+
+      [[nodiscard]] size_t bytesAvailable() const;
+
+      bool setTriggerLevel(size_t triggerLevelBytes);
 
     protected:
-    StreamBufferHandle_t handle;
+      StreamBufferHandle_t handle;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticStreamBuffer_t staticStreamBuffer{};
+      #endif
   };
 
 } /* namespace freertos */

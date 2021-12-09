@@ -22,6 +22,7 @@
 #include "cmsis_os.h"
 
 #include <freertos_cpp/Task.hpp>
+#include <freertos_cpp/Queue.hpp>
 #include <cstring>
 #include "../outcome/result.hpp"
 #include <NamedType/named_type.hpp>
@@ -73,12 +74,12 @@ class Rectangle {
 UART_HandleTypeDef huart2;
 
 /* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name = "defaultTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityNormal,
-};
+//osThreadId_t defaultTaskHandle;
+//const osThreadAttr_t defaultTask_attributes = {
+//    .name = "defaultTask",
+//    .stack_size = 128 * 4,
+//    .priority = (osPriority_t) osPriorityNormal,
+//};
 
 enum class MyError {
     too_low,
@@ -174,10 +175,15 @@ class PrintyTask : public freertos::Task {
     }
 };
 
-BlinkyTask blinky_task{"blinky"};
-PrintyTask printy_task{"printy"};
-//
+constexpr uint16_t TASK_STACK_SIZES = 128;
+std::array<StackType_t, TASK_STACK_SIZES> blinky_stack{0};
+std::array<StackType_t, TASK_STACK_SIZES> printy_stack{0};
 
+BlinkyTask blinky_task{"blinky", blinky_stack.data(), TASK_STACK_SIZES};
+PrintyTask printy_task{"printy", printy_stack.data(), TASK_STACK_SIZES};
+
+std::array<uint32_t, 32> queue_buffer{0};
+auto q = freertos::makeQueue(queue_buffer);
 
 /* USER CODE BEGIN PV */
 

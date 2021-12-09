@@ -193,6 +193,9 @@ namespace freertos {
          *  code to see how the interface between C and C++ is performed.
          */
     static void timerCallbackFunctionAdapter(TimerHandle_t xTimer);
+    #if(configSUPPORT_STATIC_ALLOCATION == 1)
+    StaticTimer_t timerBuffer{};
+    #endif
   };
 
 } // namespace freertos

@@ -10,9 +10,13 @@
 namespace freertos {
 
   Mutex::Mutex() {
+    #if(configSUPPORT_STATIC_ALLOCATION == 1)
+    handle = xSemaphoreCreateMutexStatic(&mutexBuffer);
+    #else
     handle = xSemaphoreCreateMutex();
+    #endif
 
-    if (handle == NULL) {
+    if (handle == nullptr) {
       configASSERT(!"Mutex Constructor Failed");
     }
   }
@@ -23,18 +27,23 @@ namespace freertos {
 
   bool Mutex::lock(TickType_t Timeout) {
     BaseType_t success = xSemaphoreTake(handle, Timeout);
-    return success == pdTRUE ? true : false;
+    return success == pdTRUE;
   }
 
   bool Mutex::unlock() {
     BaseType_t success = xSemaphoreGive(handle);
-    return success == pdTRUE ? true : false;
+    return success == pdTRUE;
   }
 
 #if (configUSE_RECURSIVE_MUTEXES == 1)
 
   MutexRecursive::MutexRecursive() {
-      handle = xSemaphoreCreateRecursiveMutex();
+    #if(configSUPPORT_STATIC_ALLOCATION == 1)
+    handle = xSemaphoreCreateRecursiveMutexStatic(&mutexBuffer);
+    #else
+    handle = xSemaphoreCreateRecursiveMutex();
+    #endif
+
 
       if (handle == NULL) {
           configASSERT(!"Mutex Constructor Failed");
@@ -43,12 +52,12 @@ namespace freertos {
 
   bool MutexRecursive::lock(TickType_t Timeout) {
       BaseType_t success = xSemaphoreTakeRecursive(handle, Timeout);
-      return success == pdTRUE ? true : false;
+      return success == pdTRUE;
   }
 
   bool MutexRecursive::unlock() {
       BaseType_t success = xSemaphoreGiveRecursive(handle);
-      return success == pdTRUE ? true : false;
+      return success == pdTRUE;
   }
 
 #endif

@@ -13,6 +13,10 @@ set(CMAKE_C_STANDARD 11)
 
 # set optional variables
 option(EXTRA_WARNING_FLAGS "Add extra warning and error flags" ON)
+option(FREERTOS_USE_STATIC_ALLOCATION "Use static allocation for FreeRTOS. If OFF will use dynamic allocation." ON)
+add_compile_definitions(
+    FREERTOS_USE_STATIC_ALLOCATION=$<BOOL:${FREERTOS_USE_STATIC_ALLOCATION}>
+)
 
 # Turn off shared libraries
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "do not build shared library" FORCE)
@@ -51,6 +55,7 @@ list(APPEND WARNING_ERROR_FLAGS_BASIC -Wall -Wextra -pedantic -fstack-protector-
 
 # Additional warning flags
 list(APPEND WARNING_ERROR_FLAGS_EXTRA
+        -Wduplicated-cond -Wduplicated-branches -Wnull-dereference
         -fno-common -finline-small-functions -Wmissing-include-dirs
         -findirect-inlining -finline-limit=150 -feliminate-unused-debug-types
         -Wstrict-aliasing -fmax-errors=5 -Wunreachable-code -Wcast-align -Wcast-qual
@@ -60,7 +65,8 @@ list(APPEND WARNING_ERROR_FLAGS_EXTRA
         -Wdouble-promotion)
 
 list(APPEND WARNING_ERROR_FLAGS_EXTRA_CXX
-        -Wctor-dtor-privacy -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel)
+        -Wctor-dtor-privacy -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel -Wnon-virtual-dtor
+        -Wuseless-cast)
 
 # final list of all compilation options
 if (${EXTRA_WARNING_FLAGS})

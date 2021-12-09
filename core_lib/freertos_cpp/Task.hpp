@@ -17,7 +17,17 @@ namespace freertos {
 
   class Task {
     public:
+      static constexpr uint8_t DEFAULT_PRIORITY = 5;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+
+      Task(const char* taskName, StackType_t* const stackBuffer, uint16_t stackSize, uint8_t priority = 5);
+
+      #else
+
       explicit Task(const char* taskName, uint16_t stackSize = 128, uint8_t priority = 5);
+
+      #endif
 
       virtual ~Task();
 
@@ -45,7 +55,7 @@ namespace freertos {
          *
          *  This is the API call that actually starts the thread running.
          *  It creates a backing FreeRTOS task. By separating object creation
-         *  from starting the Thread, it solves the pure virtual fuction call
+         *  from starting the Thread, it solves the pure virtual function call
          *  failure case. If we attempt to automatically call xTaskCreate
          *  from the base class constructor, in certain conditions the task
          *  starts to run "before" the derived class is constructed! So we
@@ -185,6 +195,11 @@ namespace freertos {
 
     protected:
       const char* m_taskName;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StackType_t* const m_stackBuffer;
+      #endif
+
       uint16_t m_stackSize;
       uint8_t m_priority;
       void* m_taskData;
@@ -258,6 +273,10 @@ namespace freertos {
        *  Flag whether or not the Thread was started.
        */
       bool taskStarted;
+
+      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+      StaticTask_t taskBuffer{};
+      #endif
   };
 } // namespace freertos
 

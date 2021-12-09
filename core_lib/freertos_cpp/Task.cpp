@@ -19,16 +19,30 @@ namespace freertos {
  * @param [in] stackSize The size of the stack.
  * @return N/A.
  */
-  Task::Task(const char* taskName, uint16_t stackSize, uint8_t priority)
-      : m_taskName(taskName),
-        m_stackSize(stackSize),
-        m_priority(priority),
-        m_taskData(nullptr),
-        m_handle(nullptr),
-        taskStarted(false)
-  {
+  #if(configSUPPORT_STATIC_ALLOCATION == 1)
 
-  } // Task
+  Task::Task(const char* taskName, StackType_t* const stackBuffer, uint16_t stackSize, uint8_t priority)
+      :m_taskName(taskName),
+       m_stackBuffer(stackBuffer),
+       m_stackSize(stackSize),
+       m_priority(priority),
+       m_taskData(nullptr),
+       m_handle(nullptr),
+       taskStarted(false)
+  {
+  }
+
+  #else
+  Task::Task(const char* taskName, uint16_t stackSize, uint8_t priority)
+      :m_taskName(taskName),
+       m_stackSize(stackSize),
+       m_priority(priority),
+       m_taskData(nullptr),
+       m_handle(nullptr),
+       taskStarted(false)
+  {
+  }
+  #endif
 
   Task::~Task()
   {
@@ -41,6 +55,7 @@ namespace freertos {
 #endif
   } // ~Task
 
+
   bool Task::start(void* taskData)
   {
     if (taskStarted) {
@@ -50,6 +65,20 @@ namespace freertos {
       taskStarted = true;
     }
 
+    #if(configSUPPORT_STATIC_ALLOCATION == 1)
+    m_taskData = taskData;
+    m_handle = xTaskCreateStatic(taskFunctionAdapter,
+        m_taskName,
+        m_stackSize,
+        this,
+        m_priority,
+        m_stackBuffer,
+        &taskBuffer);
+
+    return m_handle != nullptr;
+
+    #else
+
     m_taskData = taskData;
     BaseType_t rc = xTaskCreate(taskFunctionAdapter,
         m_taskName,
@@ -58,7 +87,8 @@ namespace freertos {
         m_priority,
         &m_handle);
 
-    return rc != pdPASS ? false : true;
+    return rc == pdPASS;
+    #endif
   }
 
   void Task::taskFunctionAdapter(void* pvParameters)

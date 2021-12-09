@@ -3,9 +3,15 @@
 using namespace freertos;
 
 ReadWriteLock::ReadWriteLock()
-    : readCount(0) {
+    :readCount(0)
+{
+  #if(configSUPPORT_STATIC_ALLOCATION == 1)
+  readLock = xSemaphoreCreateMutexStatic(&readBuffer);
+  #else
   readLock = xSemaphoreCreateMutex();
-  if (readLock == NULL) {
+  #endif
+
+  if (readLock == nullptr) {
     configASSERT(!"ReadWriteLock Constructor Failed");
   }
 
@@ -16,8 +22,13 @@ ReadWriteLock::ReadWriteLock()
   //  of unlocks when multiple threads hold the reader lock.
   //  Semaphores are not subject to this constraint.
   //
+  #if(configSUPPORT_STATIC_ALLOCATION == 1)
+  resourceLock  = xSemaphoreCreateBinaryStatic(&resourceBuffer);
+  #else
   resourceLock = xSemaphoreCreateBinary();
-  if (resourceLock == NULL) {
+  #endif
+
+  if (resourceLock == nullptr) {
     vSemaphoreDelete(readLock);
     configASSERT(!"ReadWriteLock Constructor Failed");
   }
@@ -28,12 +39,14 @@ ReadWriteLock::ReadWriteLock()
   xSemaphoreGive(resourceLock);
 }
 
-ReadWriteLock::~ReadWriteLock() {
+ReadWriteLock::~ReadWriteLock()
+{
   vSemaphoreDelete(readLock);
   vSemaphoreDelete(resourceLock);
 }
 
-void ReadWriteLockPreferReader::readerLock() {
+void ReadWriteLockPreferReader::readerLock()
+{
   xSemaphoreTake(readLock, portMAX_DELAY);
 
   readCount++;
@@ -44,7 +57,8 @@ void ReadWriteLockPreferReader::readerLock() {
   xSemaphoreGive(readLock);
 }
 
-void ReadWriteLockPreferReader::readerUnlock() {
+void ReadWriteLockPreferReader::readerUnlock()
+{
   xSemaphoreTake(readLock, portMAX_DELAY);
 
   readCount--;
@@ -55,19 +69,27 @@ void ReadWriteLockPreferReader::readerUnlock() {
   xSemaphoreGive(readLock);
 }
 
-void ReadWriteLockPreferReader::writerLock() {
+void ReadWriteLockPreferReader::writerLock()
+{
   xSemaphoreTake(resourceLock, portMAX_DELAY);
 }
 
-void ReadWriteLockPreferReader::writerUnlock() {
+void ReadWriteLockPreferReader::writerUnlock()
+{
   xSemaphoreGive(resourceLock);
 }
 
 ReadWriteLockPreferWriter::ReadWriteLockPreferWriter()
-    : ReadWriteLock(),
-      writeCount(0) {
+    :ReadWriteLock(),
+     writeCount(0)
+{
+  #if(configSUPPORT_STATIC_ALLOCATION == 1)
+  writeLock  = xSemaphoreCreateMutexStatic(&writeBuffer);
+  #else
   writeLock = xSemaphoreCreateMutex();
-  if (writeLock == NULL) {
+  #endif
+
+  if (writeLock == nullptr) {
     configASSERT(!"ReadWriteLockPreferWriter Constructor Failed");
   }
 
@@ -78,9 +100,13 @@ ReadWriteLockPreferWriter::ReadWriteLockPreferWriter()
   //  of unlocks when multiple threads hold the reader lock.
   //  Semaphores are not subject to this constraint.
   //
+  #if(configSUPPORT_STATIC_ALLOCATION == 1)
+  blockReadersLock   = xSemaphoreCreateBinaryStatic(&readBuffer);
+  #else
   blockReadersLock = xSemaphoreCreateBinary();
+  #endif
 
-  if (blockReadersLock == NULL) {
+  if (blockReadersLock == nullptr) {
     vSemaphoreDelete(writeLock);
     configASSERT(!"ReadWriteLockPreferWriter Constructor Failed");
   }
@@ -91,12 +117,14 @@ ReadWriteLockPreferWriter::ReadWriteLockPreferWriter()
   xSemaphoreGive(blockReadersLock);
 }
 
-ReadWriteLockPreferWriter::~ReadWriteLockPreferWriter() {
+ReadWriteLockPreferWriter::~ReadWriteLockPreferWriter()
+{
   vSemaphoreDelete(writeLock);
   vSemaphoreDelete(blockReadersLock);
 }
 
-void ReadWriteLockPreferWriter::readerLock() {
+void ReadWriteLockPreferWriter::readerLock()
+{
   xSemaphoreTake(blockReadersLock, portMAX_DELAY);
   xSemaphoreTake(readLock, portMAX_DELAY);
 
@@ -109,7 +137,8 @@ void ReadWriteLockPreferWriter::readerLock() {
   xSemaphoreGive(blockReadersLock);
 }
 
-void ReadWriteLockPreferWriter::readerUnlock() {
+void ReadWriteLockPreferWriter::readerUnlock()
+{
   xSemaphoreTake(readLock, portMAX_DELAY);
 
   readCount--;
@@ -120,7 +149,8 @@ void ReadWriteLockPreferWriter::readerUnlock() {
   xSemaphoreGive(readLock);
 }
 
-void ReadWriteLockPreferWriter::writerLock() {
+void ReadWriteLockPreferWriter::writerLock()
+{
   xSemaphoreTake(writeLock, portMAX_DELAY);
 
   writeCount++;
@@ -133,7 +163,8 @@ void ReadWriteLockPreferWriter::writerLock() {
   xSemaphoreTake(resourceLock, portMAX_DELAY);
 }
 
-void ReadWriteLockPreferWriter::writerUnlock() {
+void ReadWriteLockPreferWriter::writerUnlock()
+{
   xSemaphoreGive(resourceLock);
 
   xSemaphoreTake(writeLock, portMAX_DELAY);

@@ -49,7 +49,11 @@ namespace freertos {
   }
 
   BinarySemaphore::BinarySemaphore(bool set) {
+    #if(configSUPPORT_STATIC_ALLOCATION == 1)
+    handle = xSemaphoreCreateBinaryStatic(&semaBuffer);
+    #else
     handle = xSemaphoreCreateBinary();
+    #endif
 
     if (handle == NULL) {
       configASSERT(!"BinarySemaphore Constructor Failed");
@@ -70,7 +74,11 @@ namespace freertos {
       configASSERT(!"CountingSemaphore Constructor bad initialCount");
     }
 
+    #if(configSUPPORT_STATIC_ALLOCATION == 1)
+    handle = xSemaphoreCreateCountingStatic(maxCount, initialCount, &semaBuffer);
+    #else
     handle = xSemaphoreCreateCounting(maxCount, initialCount);
+    #endif
 
     if (handle == NULL) {
       configASSERT(!"CountingSemaphore Constructor Failed");

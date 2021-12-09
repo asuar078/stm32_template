@@ -11,10 +11,18 @@ add_library(freertos STATIC
         Source/portable/GCC/ARM_CM4F/port.c
 
         # include the specified heap allocator
-        Source/portable/MemMang/heap_4.c
+        #        Source/portable/MemMang/heap_4.c
 
         Source/CMSIS_RTOS_V2/cmsis_os2.c
         )
+
+if (NOT ${FREERTOS_USE_STATIC_ALLOCATION})
+    target_sources(freertos PUBLIC
+            # include the specified heap allocator
+            Source/portable/MemMang/heap_4.c
+            )
+
+endif ()
 
 # Set include path
 target_include_directories(freertos
