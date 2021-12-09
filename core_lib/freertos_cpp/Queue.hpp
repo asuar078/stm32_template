@@ -199,15 +199,17 @@ namespace freertos {
           *  @param itemSize Size of an item in a queue.
           *  @note FreeRTOS queues use a memcpy / fixed size scheme for queues.
           */
-      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+          using Queue::Queue;
 
-      Deque(UBaseType_t maxItems, UBaseType_t itemSize, uint8_t* storageBuffer);
-
-      #else
-
-      Deque(UBaseType_t maxItems, UBaseType_t itemSize);
-
-      #endif
+//      #if(configSUPPORT_STATIC_ALLOCATION == 1)
+//
+//      Deque(UBaseType_t maxItems, UBaseType_t itemSize, uint8_t* storageBuffer);
+//
+//      #else
+//
+//      Deque(UBaseType_t maxItems, UBaseType_t itemSize);
+//
+//      #endif
 
       /**
           *  Add an item to the front of the queue. This will result in

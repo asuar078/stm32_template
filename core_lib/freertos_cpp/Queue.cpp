@@ -111,19 +111,19 @@ namespace freertos {
     return uxQueueSpacesAvailable(handle);
   }
 
-  #if(configSUPPORT_STATIC_ALLOCATION == 1)
-
-  Deque::Deque(UBaseType_t maxItems, UBaseType_t itemSize, uint8_t* storageBuffer)
-      :Queue(maxItems, itemSize, storageBuffer)
-  {
-  }
-
-  #else
-  Deque::Deque(UBaseType_t maxItems, UBaseType_t itemSize)
-      :Queue(maxItems, itemSize)
-  {
-  }
-  #endif
+//  #if(configSUPPORT_STATIC_ALLOCATION == 1)
+//
+//  Deque::Deque(UBaseType_t maxItems, UBaseType_t itemSize, uint8_t* storageBuffer)
+//      :Queue(maxItems, itemSize, storageBuffer)
+//  {
+//  }
+//
+//  #else
+//  Deque::Deque(UBaseType_t maxItems, UBaseType_t itemSize)
+//      :Queue(maxItems, itemSize)
+//  {
+//  }
+//  #endif
 
   bool Deque::enqueueToFront(void* item, TickType_t Timeout)
   {

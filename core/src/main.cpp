@@ -110,9 +110,17 @@ result<int, MyError> test_val(int i)
   return outcome::success(l);
 }
 
+constexpr uint16_t TASK_STACK_SIZES = 128;
 class BlinkyTask : public freertos::Task {
+  private:
+    std::array<StackType_t, TASK_STACK_SIZES> printy_stack{0};
+
   public:
-    using Task::Task;
+//    using Task::Task;
+    BlinkyTask()
+    : freertos::Task("Blinky", printy_stack.data(), TASK_STACK_SIZES)
+    {
+    }
 
     [[noreturn]] void run() override
     {
@@ -122,11 +130,6 @@ class BlinkyTask : public freertos::Task {
       }
     }
 };
-
-constexpr int length(const char* str)
-{
-  return *str ? 1 + length(str + 1) : 0;
-}
 
 class PrintyTask : public freertos::Task {
   public:
@@ -175,11 +178,10 @@ class PrintyTask : public freertos::Task {
     }
 };
 
-constexpr uint16_t TASK_STACK_SIZES = 128;
-std::array<StackType_t, TASK_STACK_SIZES> blinky_stack{0};
-std::array<StackType_t, TASK_STACK_SIZES> printy_stack{0};
 
-BlinkyTask blinky_task{"blinky", blinky_stack.data(), TASK_STACK_SIZES};
+BlinkyTask blinky_task{};
+
+std::array<StackType_t, TASK_STACK_SIZES> printy_stack{0};
 PrintyTask printy_task{"printy", printy_stack.data(), TASK_STACK_SIZES};
 
 std::array<uint32_t, 32> queue_buffer{0};
